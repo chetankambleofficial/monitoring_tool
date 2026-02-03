@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Domain Classification Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-inter bg-gray-50 text-gray-900">
+    <div class="max-w-7xl mx-auto p-6">
+        <a href="/dashboard" class="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 transition-colors">
+            ← Back to Dashboard
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
+            🏷️ Domain Classification Management
+        </h1>
+
+        <!-- Section 1: Review Queue -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    📋 Review Queue (Needs Classification)
+                </h2>
+            </div>
+            <div class="p-6">
+                <div id="review-queue">
+                    <p class="text-gray-500">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Classification Rules -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                        ⚙️ Classification Rules
+                    </h2>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" onclick="showAddRuleForm()">
+                        + Add New Rule
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div id="add-rule-form" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New Rule</h3>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <input type="text" id="new-pattern" placeholder="Pattern (e.g., 'chatgpt')" 
+                               class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="text" id="new-classified-as" placeholder="Domain (e.g., 'chatgpt.com')" 
+                               class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <select id="new-action" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="map">Map to Domain</option>
+                            <option value="ignore">Ignore</option>
+                        </select>
+                        <input type="number" id="new-priority" placeholder="Priority" value="50" 
+                               class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors" onclick="createRule()">
+                            Save
+                        </button>
+                        <button class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors" onclick="hideAddRuleForm()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table id="rules-table" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pattern</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Classified As</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Matches</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rules-body" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load review queue
+        async function loadReviewQueue() {
+            try {
+                const res = await fetch('/api/admin/classification/review-queue');
+                const data = await res.json();
+
+                const container = document.getElementById('review-queue');
+                if (!data.queue || data.queue.length === 0) {
+                    container.innerHTML = '<div class="text-center py-12 text-green-600 text-lg">✅ No sessions need review!</div>';
+                    return;
+                }
+
+                container.innerHTML = data.queue.map(item => `
+                    <div class="border border-gray-200 rounded-lg p-6 mb-4 bg-white hover:shadow-md transition-shadow">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-2 break-all">${escapeHtml(item.raw_title || 'Unknown')}</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            Sessions: <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">${item.session_count}</span> | 
+                            Duration: <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">${Math.round((item.total_duration || 0)/60)}m</span>
+                        </p>
+                        ${item.raw_url ? `<p class="text-sm text-gray-500 mb-4">URL: ${escapeHtml(item.raw_url)}</p>` : ''}
+                        <div class="flex flex-wrap items-center gap-4">
+                            <input type="text" id="classify-${item.first_session_id}" 
+                                   placeholder="Enter domain (e.g., google.com)" 
+                                   class="flex-1 min-w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <label class="flex items-center gap-2 text-sm text-gray-700">
+                                <input type="checkbox" id="rule-${item.first_session_id}" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                Create rule for future
+                            </label>
+                            <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium" 
+                                    onclick="classify('${escapeHtml(item.raw_title)}', ${item.first_session_id})">
+                                ✅ Classify
+                            </button>
+                            <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium" 
+                                    onclick="ignoreSession('${escapeHtml(item.raw_title)}')">
+                                🗑️ Ignore
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load review queue:', e);
+                document.getElementById('review-queue').innerHTML = 
+                    '<p class="text-red-600">Failed to load review queue. Check if database tables exist.</p>';
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Classify session
+        async function classify(rawTitle, sessionId) {
+            const domain = document.getElementById(`classify-${sessionId}`).value;
+            const createRule = document.getElementById(`rule-${sessionId}`).checked;
+
+            if (!domain) {
+                alert('Please enter a domain');
+                return;
+            }
+
+            try {
+                await fetch('/api/admin/classification/classify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        raw_title: rawTitle,
+                        classified_as: domain,
+                        action: 'map',
+                        create_rule: createRule
+                    })
+                });
+
+                loadReviewQueue();
+                loadRules();
+            } catch (e) {
+                alert('Failed to classify: ' + e.message);
+            }
+        }
+
+        // Ignore session
+        async function ignoreSession(rawTitle) {
+            if (!confirm(`Ignore all sessions with title: ${rawTitle.substring(0, 50)}...?`)) return;
+
+            try {
+                await fetch('/api/admin/classification/classify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        raw_title: rawTitle,
+                        classified_as: 'ignored',
+                        action: 'ignore',
+                        create_rule: true
+                    })
+                });
+
+                loadReviewQueue();
+                loadRules();
+            } catch (e) {
+                alert('Failed to ignore: ' + e.message);
+            }
+        }
+
+        // Load classification rules
+        async function loadRules() {
+            try {
+                const res = await fetch('/api/admin/classification/rules');
+                const data = await res.json();
+
+                const tbody = document.getElementById('rules-body');
+                if (!data.rules || data.rules.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No rules defined yet</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.rules.map(rule => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${escapeHtml(rule.pattern)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${escapeHtml(rule.classified_as)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">${rule.action}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rule.priority}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${rule.match_count || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">${rule.is_active ? '✅' : '❌'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <button class="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs font-medium" onclick="deleteRule(${rule.id})">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load rules:', e);
+                document.getElementById('rules-body').innerHTML = 
+                    '<tr><td colspan="7" class="px-6 py-4 text-center text-red-600">Failed to load rules. Run migration first.</td></tr>';
+            }
+        }
+
+        // Show/hide add rule form
+        function showAddRuleForm() {
+            document.getElementById('add-rule-form').classList.remove('hidden');
+        }
+        function hideAddRuleForm() {
+            document.getElementById('add-rule-form').classList.add('hidden');
+        }
+
+        // Create rule
+        async function createRule() {
+            const pattern = document.getElementById('new-pattern').value;
+            const classifiedAs = document.getElementById('new-classified-as').value;
+            const action = document.getElementById('new-action').value;
+            const priority = parseInt(document.getElementById('new-priority').value) || 50;
+
+            if (!pattern || !classifiedAs) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                await fetch('/api/admin/classification/rules', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        pattern: pattern,
+                        classified_as: classifiedAs,
+                        action: action,
+                        priority: priority
+                    })
+                });
+
+                // Clear form
+                document.getElementById('new-pattern').value = '';
+                document.getElementById('new-classified-as').value = '';
+                document.getElementById('new-priority').value = '50';
+                
+                hideAddRuleForm();
+                loadRules();
+            } catch (e) {
+                alert('Failed to create rule: ' + e.message);
+            }
+        }
+
+        // Delete rule
+        async function deleteRule(id) {
+            if (!confirm('Delete this rule?')) return;
+
+            try {
+                await fetch(`/api/admin/classification/rules/${id}`, {
+                    method: 'DELETE'
+                });
+
+                loadRules();
+            } catch (e) {
+                alert('Failed to delete rule: ' + e.message);
+            }
+        }
+
+        // Initial load
+        loadReviewQueue();
+        loadRules();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadReviewQueue();
+            loadRules();
+        }, 30000);
+    </script>
+</body>
+</html>
