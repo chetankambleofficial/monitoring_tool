@@ -65,7 +65,7 @@
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center gap-8">
                     <a href="{{ url_for('dashboard.dashboard_home') }}" class="flex items-center gap-2 text-xl font-bold text-primary-600 dark:text-primary-400">
-                        <span class="text-2xl">🛡️</span>
+                        <span class="text-2xl"><img src="{{ url_for('static', filename='bsol.png') }}" class="w-15 h-8" /></span>
                         <span>Sentinel<span class="text-purple-600 dark:text-purple-400">Edge</span></span>
                     </a>
                     
@@ -76,12 +76,28 @@
                                 Overview
                             </a>
                         </li>
+                        {% if session.role == 'admin' %}
                         <li>
                             <a href="{{ url_for('dashboard.agents_list') }}"
                                 class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' if request.endpoint == 'dashboard.agents_list' else 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
                                 Agents
                             </a>
                         </li>
+                        {% else %}
+                        <li>
+                            {% set user_agent_id = get_user_agent_id() %}
+                            {% if user_agent_id %}
+                            <a href="{{ url_for('dashboard.agent_detail', agent_id=user_agent_id) }}"
+                                class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' if request.endpoint == 'dashboard.agent_detail' else 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
+                               Agent
+                            </a>
+                            {% else %}
+                            <span class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 dark:text-gray-500 cursor-not-allowed">
+                               Agent
+                            </span>
+                            {% endif %}
+                        </li>
+                        {% endif %}
                         <li>
                             <a href="{{ url_for('dashboard.reports') }}"
                                 class="px-4 py-2 rounded-lg text-sm font-medium transition-colors {{ 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300' if request.endpoint == 'dashboard.reports' else 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700' }}">
@@ -93,8 +109,8 @@
 
                 <div class="flex items-center gap-4">
                     <button id="theme-toggle" class="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center" title="Toggle Dark/Light Mode">
-                        <span class="theme-toggle-icon moon text-lg dark:hidden">🌙</span>
-                        <span class="theme-toggle-icon sun text-lg hidden dark:block">☀️</span>
+                        <span class="theme-toggle-icon moon text-lg dark:hidden"><img src="{{ url_for('static', filename='moon.png') }}" class="w-5 h-5" /></span>
+                        <span class="theme-toggle-icon sun text-lg hidden dark:block"><img src="{{ url_for('static', filename='day-mode.png') }}" class="w-5 h-5" /></span>
                     </button>
                     
                     <select id="global-agent-select" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
@@ -107,7 +123,7 @@
                     <!-- User Menu -->
                     <div class="relative group">
                         <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer">
-                            <span class="text-lg">👤</span>
+                            <span class="text-lg"><img src="{{ url_for('static', filename='user-setting.png') }}" class="w-5 h-5" /></span>
                             <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ session.username or 'Guest' }}</span>
                             {% if session.role == 'admin' %}
                             <span class="px-2 py-1 text-xs font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full">Admin</span>
@@ -117,15 +133,15 @@
                         <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                             {% if session.role == 'admin' %}
                             <a href="{{ url_for('auth.list_users') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                👥 Manage Users
+                                <img src="{{ url_for('static', filename='users.png') }}" class="w-4 h-4 inline mr-2" /> Manage Users
                             </a>
                             {% endif %}
                             <a href="{{ url_for('auth.change_password') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                🔑 Change Password
+                                <img src="{{ url_for('static', filename='key.png') }}" class="w-4 h-4 inline mr-2" /> Change Password
                             </a>
                             <hr class="my-1 border-gray-200 dark:border-gray-600">
                             <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
-                                🚪 Logout
+                                <img src="{{ url_for('static', filename='logout.png') }}" class="w-4 h-4 inline mr-2" /> Logout
                             </a>
                         </div>
                     </div>
@@ -188,6 +204,10 @@
             if (toggleBtn) {
                 toggleBtn.addEventListener('click', toggleTheme);
             }
+            
+            // Initialize components
+            loadGlobalAgents();
+            initDateSelector();
         });
 
         // Footer Clock
@@ -201,6 +221,50 @@
         }
         setInterval(updateFooterClock, 1000);
         updateFooterClock();
+        
+        // Load agents for global agent selector
+        async function loadGlobalAgents() {
+            const agentSelect = document.getElementById('global-agent-select');
+            if (!agentSelect) return;
+            
+            try {
+                const data = await fetchJSON('/dashboard/api/agents');
+                if (data && data.data) {
+                    // Clear loading option
+                    agentSelect.innerHTML = '<option value="">Fleet Overview</option>';
+                    
+                    // Add agents
+                    data.data.forEach(agent => {
+                        const option = document.createElement('option');
+                        option.value = agent.agent_id;
+                        option.textContent = `${agent.hostname} (${agent.username || 'Unknown'})`;
+                        agentSelect.appendChild(option);
+                    });
+                    
+                    // Add change event listener
+                    agentSelect.addEventListener('change', (e) => {
+                        if (e.target.value) {
+                            window.location.href = `/dashboard/agent/${e.target.value}`;
+                        } else {
+                            window.location.href = '/dashboard/';
+                        }
+                    });
+                } else {
+                    agentSelect.innerHTML = '<option value="">No agents found</option>';
+                }
+            } catch (error) {
+                console.error('Failed to load agents:', error);
+                agentSelect.innerHTML = '<option value="">Failed to load agents</option>';
+            }
+        }
+        
+        // Initialize date selector with today's date
+        function initDateSelector() {
+            const dateSelect = document.getElementById('global-date-select');
+            if (dateSelect && !dateSelect.value) {
+                dateSelect.value = new Date().toISOString().split('T')[0];
+            }
+        }
         
         // Utility functions
         async function fetchJSON(url) {

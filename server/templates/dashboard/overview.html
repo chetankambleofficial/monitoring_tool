@@ -5,7 +5,7 @@
 {% block content %}
 <div class="flex items-center justify-between mb-8">
     <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">🛡️ Dashboard Overview</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2"><img src="{{ url_for('static', filename='dashboard.png') }}" class="w-8 h-8 mr-4" /> Dashboard Overview</h1>
         <p class="text-gray-600 dark:text-gray-400 mt-1">Fleet-wide activity and agent status summary</p>
     </div>
     <div class="flex items-center gap-4">
@@ -20,7 +20,7 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center text-2xl">👥</div>
+            <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center text-2xl"><img src="{{ url_for('static', filename='agents.png') }}" class="w-8 h-8" /></div>
             <div>
                 <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Total Agents</div>
                 <p id="total-agents" class="text-2xl font-bold text-gray-900 dark:text-gray-100">-</p>
@@ -30,7 +30,7 @@
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-success-100 dark:bg-success-900 rounded-lg flex items-center justify-center text-2xl">🟢</div>
+            <div class="w-12 h-12 bg-success-100 dark:bg-success-900 rounded-lg flex items-center justify-center text-2xl"><img src="{{ url_for('static', filename='online.png') }}" class="w-8 h-8" /></div>
             <div>
                 <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Online Now</div>
                 <p id="active-agents" class="text-2xl font-bold text-success-600 dark:text-success-400">-</p>
@@ -40,7 +40,7 @@
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center text-2xl">🔴</div>
+            <div class="w-12 h-12   rounded-lg flex items-center justify-center text-2xl"><img src="{{ url_for('static', filename='no.png') }}" class="w-8 h-8" /></div>
             <div>
                 <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Offline</div>
                 <p id="offline-agents" class="text-2xl font-bold text-red-600 dark:text-red-400">-</p>
@@ -78,13 +78,13 @@
 <!-- Top Apps & Domains -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">🏆 Top App Today</div>
+        <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"><img src="{{ url_for('static', filename='throphy.png') }}" class="w-5 h-5 inline mr-2" /> Top App Today</div>
         <p id="top-app-name" class="text-xl font-bold text-primary-600 dark:text-primary-400 mb-2">-</p>
         <div id="top-app-duration" class="font-semibold text-gray-600 dark:text-gray-300 mb-2">-</div>
         <div class="text-xs text-gray-500 dark:text-gray-400">Fleet-wide usage</div>
     </div>
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">🌐 Top Domain Today</div>
+        <div class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1"><img src="{{ url_for('static', filename='globe.png') }}" class="w-5 h-5 inline mr-2" /> Top Domain Today</div>
         <p id="top-domain-name" class="text-xl font-bold text-primary-600 dark:text-primary-400 mb-2">-</p>
         <div id="top-domain-duration" class="font-semibold text-gray-600 dark:text-gray-300 mb-2">-</div>
         <div class="text-xs text-gray-500 dark:text-gray-400">Fleet-wide usage</div>
@@ -94,25 +94,25 @@
 <!-- Top 5 Agents Widget -->
 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">🏆 Top 5 Agents</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100"><img src="{{ url_for('static', filename='throphy.png') }}" class="w-5 h-5 inline mr-2" />Top 5 Agents</h3>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Leaders by screen time category</p>
     </div>
     <div class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div>
-                <h4 class="text-sm font-semibold text-warning-600 dark:text-warning-400 mb-4 flex items-center gap-2">⏸️ Most Idle Time</h4>
+                <h4 class="text-sm font-semibold text-warning-600 dark:text-warning-400 mb-4 flex items-center gap-2"><img src="{{ url_for('static', filename='pause.png') }}" class="w-4 h-4 inline mr-2" />Most Idle Time</h4>
                 <ul id="top-idle-list" class="space-y-2">
                     <li class="text-gray-500 dark:text-gray-400">Loading...</li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-sm font-semibold text-success-600 dark:text-success-400 mb-4 flex items-center gap-2">✅ Most Active Time</h4>
+                <h4 class="text-sm font-semibold text-success-600 dark:text-success-400 mb-4 flex items-center gap-2"><img src="{{ url_for('static', filename='online.png') }}" class="w-4 h-4 inline mr-2" /> Most Active Time</h4>
                 <ul id="top-active-list" class="space-y-2">
                     <li class="text-gray-500 dark:text-gray-400">Loading...</li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-sm font-semibold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2">🔒 Most Locked Time</h4>
+                <h4 class="text-sm font-semibold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2"><img src="{{ url_for('static', filename='lock.png') }}" class="w-4 h-4 inline mr-2" /> Most Locked Time</h4>
                 <ul id="top-locked-list" class="space-y-2">
                     <li class="text-gray-500 dark:text-gray-400">Loading...</li>
                 </ul>
